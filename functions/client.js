@@ -36,12 +36,34 @@ let createClient = (req,res) => {
                 })
             }
 
-            console.log("result",result);
+            if(result.return){
+                if(result.return.$value){
+                    let val = JSON.parse(result.return.$value);
 
-            res.status(200).json({
-                error:false,
-                data:result
-            })
+                    if(val.error){
+                        return res.status(200).json({
+                            error:true,
+                            message:val.message
+                        })
+                    }else{
+                        return res.status(200).json({
+                            error:false,
+                            data:val.message
+                        })
+                    }
+                    
+                }else{
+                    return res.status(500).json({
+                        error:true,
+                        message:result
+                    })
+                }
+            }else{
+                return res.status(500).json({
+                    error:true,
+                    message:result
+                })
+            }
         })
     });
 

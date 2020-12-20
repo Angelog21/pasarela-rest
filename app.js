@@ -3,6 +3,7 @@ let logger = require('morgan');
 
 let clientFunctions = require('./functions/client');
 let walletFunctions = require('./functions/wallet');
+let paymentFunctions = require('./functions/payment');
 
 let app = express();
 
@@ -17,6 +18,11 @@ app.get('/',(req,res) => {
 app.post('/client', clientFunctions.createClient);
 
 app.post('/wallet', walletFunctions.rechargeWallet);
+
 app.post('/balance', walletFunctions.consultBalance);
+
+app.post('/pay',paymentFunctions.pay);
+
+app.post('/confirm-payment',paymentFunctions.confirmPayment);
 
 module.exports = app;

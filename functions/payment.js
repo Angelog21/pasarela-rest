@@ -1,20 +1,20 @@
 const soap = require('soap');
 
-let rechargeWallet = (req,res) => {
+let pay = (req,res) => {
     let body = req.body;
-    let url = 'http://pasarela-soap.test/wallet?wsdl=true';
+    let url = 'http://pasarela-soap.test/payment?wsdl=true';
 
-    if(!body.cedula || !body.celular || !body.monto){
+    if(!body.cedula || !body.email || !body.monto || !body.descripcion){
         return res.status(400).json({
             error:true,
-            message:"Faltan datos para realizar la recarga."
+            message:"Faltan datos para realizar el pago."
         });
     }
 
     if(body.monto <= 0){
         return res.status(400).json({
             error:true,
-            message:"El monto debe ser mayor a 0 para realizar la recarga."
+            message:"El monto debe ser mayor a 0 para realizar el pago."
         });
     }
     soap.createClient(url, (error, wallet) => {
@@ -29,10 +29,11 @@ let rechargeWallet = (req,res) => {
 
         let args = {
             cedula:body.cedula,
-            celular:body.celular,
+            email:body.email,
+            descripcion:body.descripcion,
             monto:body.monto
         }
-        wallet.recharge(args, (err,result) => {
+        wallet.pay(args, (err,result) => {
 
             if(err){
                 console.log(err);
@@ -75,16 +76,17 @@ let rechargeWallet = (req,res) => {
 
 }
 
-let consultBalance = (req,res) => {
+let confirmPayment = (req,res) => {
     let body = req.body;
-    let url = 'http://pasarela-soap.test/wallet?wsdl=true';
+    let url = 'http://pasarela-soap.test/payment?wsdl=true';
 
-    if(!body.cedula || !body.celular){
+    if(!body.token || !body.session_id){
         return res.status(400).json({
             error:true,
-            message:"Faltan datos para realizar la consulta de saldo."
+            message:"Faltan datos para realizar la confirmacion del pago."
         });
     }
+
     soap.createClient(url, (error, client) => {
 
         if(error){
@@ -96,10 +98,10 @@ let consultBalance = (req,res) => {
         }
 
         let args = {
-            cedula:body.cedula,
-            celular:body.celular
+            token:body.token,
+            session_id:body.session_id
         }
-        client.search(args, (err,result) => {
+        client.confirmPayment(args, (err,result) => {
 
             if(err){
                 console.log(err);
@@ -121,7 +123,7 @@ let consultBalance = (req,res) => {
                     }else{
                         return res.status(200).json({
                             error:false,
-                            data:val.data
+                            data:val.message
                         })
                     }
                     
@@ -144,6 +146,6 @@ let consultBalance = (req,res) => {
 }
 
 module.exports = {
-    rechargeWallet,
-    consultBalance
+    pay,
+    confirmPayment
 }
