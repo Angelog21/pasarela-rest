@@ -1,23 +1,22 @@
-var createError = require('http-errors');
-var express = require('express');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+let express = require('express');
+let logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+let clientFunctions = require('./functions/client');
+let walletFunctions = require('./functions/wallet');
 
-var app = express();
+let app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.get('/',(req,res) => {
+  return res.status(200).json({message:"hola!"})
+})
 
-app.use(function(req, res) {
-  next(createError(404));
-});
+app.post('/client', clientFunctions.createClient);
+
+app.post('/wallet', walletFunctions.rechargeWallet);
+app.post('/balance', walletFunctions.consultBalance);
 
 module.exports = app;
